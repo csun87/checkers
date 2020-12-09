@@ -1,37 +1,52 @@
-
+import java.util.LinkedList;
 
 public class Move {
-    private final int startCol;
-    private final int endCol;
-    private final int startRow;
-    private final int endRow;
-    private final int distance;
+    private final Coordinate start;
+    private final Coordinate end;
+    private final int capture;
 
     public Move(int startRow, int startCol, int endRow, int endCol) {
-        this.startRow = startRow;
-        this.startCol = startCol;
-        this.endRow = endRow;
-        this.endCol = endCol;
-        this.distance = Math.abs(startRow - endRow) + Math.abs(startCol - endCol);
+        this.start = new Coordinate(startRow, startCol);
+        this.end = new Coordinate(endRow, endCol);
+        this.capture = -1;
     }
 
-    public int getStartCol() {
-        return startCol;
+    public Move(Coordinate start, Coordinate end) {
+        this.start = start;
+        this.end = end;
+        this.capture = -1;
     }
 
-    public int getEndCol() {
-        return endCol;
+    public Move(Coordinate start, Coordinate end, int captured) {
+        this.start = start;
+        this.end = end;
+        this.capture = captured;
     }
 
-    public int getStartRow() {
-        return startRow;
+    public Move(int startRow, int startCol, int endRow, int endCol, int captured) {
+        this.start = new Coordinate(startRow, startCol);
+        this.end = new Coordinate(endRow, endCol);
+        this.capture = captured;
     }
 
-    public int getEndRow() {
-        return endRow;
+    public Coordinate getStart() {
+        return this.start;
     }
 
-    public int getDistance() {
-        return distance;
+    public Coordinate getEnd() {
+        return this.end;
+    }
+
+    public int getCaptured() {
+        return capture;
+    }
+
+    @Override
+    public String toString() {
+        return "Move{" +
+            "start=" + start +
+            ", end=" + end +
+            ", capture=" + capture +
+            '}';
     }
 }

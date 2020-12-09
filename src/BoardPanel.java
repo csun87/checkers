@@ -1,28 +1,30 @@
 import javax.imageio.ImageIO;
 import javax.swing.*;
+import javax.swing.filechooser.FileNameExtensionFilter;
 import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
 import java.io.File;
 
-public class GameScreen extends JPanel {
+public class BoardPanel extends JPanel {
 
     private Board board;
     private Point clicked;
     private Point released;
+    private JLabel statusLabel;
     public static final int BOARD_WIDTH = 800;
     public static final int BOARD_HEIGHT = 800;
 
-    public GameScreen() {
+    public BoardPanel(JLabel status) {
         board = new Board();
         setFocusable(true);
+        this.statusLabel = status;
+        this.setSize(new Dimension(800, 800));
 
         addMouseListener(new MouseAdapter() {
             @Override
             public void mousePressed(MouseEvent e) {
                 clicked = e.getPoint();
-                System.out.println("this is running");
             }
 
             @Override
@@ -30,6 +32,7 @@ public class GameScreen extends JPanel {
                 released = e.getPoint();
                 if (board.playMove(convertPoint(clicked), convertPoint(released))) {
                     repaint();
+                    updateStatusText();
                 }
             }
         });
@@ -38,6 +41,7 @@ public class GameScreen extends JPanel {
     @Override
     public void paintComponent(Graphics g) {
         super.paintComponent(g);
+        this.setSize(new Dimension(800, 800));
 
         g.drawLine(0, 0, 800, 0);
         g.drawLine(0, 100, 800, 100);
@@ -114,8 +118,54 @@ public class GameScreen extends JPanel {
     public Coordinate convertPoint(Point p) {
         int x = p.x / 100;
         int y = p.y / 100;
-        System.out.println("Row: " + y);
-        System.out.println("Column: " + x);
         return new Coordinate(y, x);
+    }
+
+    public void saveGame() {
+        JFileChooser fileChooser = new JFileChooser();
+        FileNameExtensionFilter filter = new FileNameExtensionFilter("SAVE FILES", "csav");
+        fileChooser.setDialogTitle("Where to save this file?");
+        fileChooser.setFileFilter(filter);
+        fileChooser.setDialogType(JFileChooser.SAVE_DIALOG);
+        fileChooser.setSelectedFile(new File("savedGame.csav"));
+        fileChooser.showOpenDialog(this);
+
+        if (fileChooser.getSelectedFile().toString().endsWith("csav")) {
+            board.saveGame(fileChooser.getSelectedFile().getAbsoluteFile());
+        } else {
+            String fileName = fileChooser.getSelectedFile().toString();
+            fileName = fileName.concat(".csav");
+            File file = new File(fileName);
+            board.saveGame(file);
+        }
+    }
+
+    public void loadGame() {
+        JFileChooser fileChooser = new JFileChooser();
+        FileNameExtensionFilter filter = new FileNameExtensionFilter("SAVE FILES", "csav");
+        fileChooser.setDialogTitle("Where is the saved file to load?");
+        fileChooser.setFileFilter(filter);
+        fileChooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
+        fileChooser.showOpenDialog(this);
+        board.loadGame(fileChooser.getSelectedFile().getAbsoluteFile());
+        repaint();
+        requestFocusInWindow();
+    }
+
+    public void undo() {
+        board.undo();
+        repaint();
+        updateStatusText();
+        requestFocusInWindow();
+    }
+
+    public void updateStatusText() {
+        if (board.isGameOver()) {
+            statusLabel.setText("Game over!");
+        } else if (board.getPlayerTurn()) {
+            statusLabel.setText("Player 1's turn");
+        } else if (!board.getPlayerTurn()) {
+            statusLabel.setText("Player 2's turn");
+        }
     }
 }

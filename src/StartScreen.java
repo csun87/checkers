@@ -8,8 +8,6 @@ import java.awt.event.WindowEvent;
 public class StartScreen extends JFrame implements ActionListener {
 
     private final JButton newGameBtn;
-    private final JButton loadGameBtn;
-    private final JButton watchGameBtn;
     private final JButton instructionsBtn;
     private boolean visible;
 
@@ -21,32 +19,20 @@ public class StartScreen extends JFrame implements ActionListener {
         JPanel buttonPanel = new JPanel();
         buttonPanel.setBackground(new Color(112, 68, 17));
         buttonPanel.setBorder(BorderFactory.createLineBorder(Color.BLACK, 5));
-        buttonPanel.setBounds(250, 300, 500, 500);
+        buttonPanel.setBounds(250, 300, 500, 250);
         buttonPanel.setLayout(null);
 
-        newGameBtn = new JButton("Start New Game");
+        newGameBtn = new JButton("Game Screen");
         newGameBtn.setBounds(100, 50, 300, 50);
         newGameBtn.addActionListener(this);
         newGameBtn.setBorder(BorderFactory.createEtchedBorder());
 
-        loadGameBtn = new JButton("Load Existing Game");
-        loadGameBtn.setBounds(100, 150, 300, 50);
-        loadGameBtn.addActionListener(this);
-        loadGameBtn.setBorder(BorderFactory.createEtchedBorder());
-
-        watchGameBtn = new JButton("Watch Finished Game");
-        watchGameBtn.setBounds(100, 250, 300, 50);
-        watchGameBtn.addActionListener(this);
-        watchGameBtn.setBorder(BorderFactory.createEtchedBorder());
-
         instructionsBtn = new JButton("Instructions");
-        instructionsBtn.setBounds(100, 350, 300, 50);
+        instructionsBtn.setBounds(100, 150, 300, 50);
         instructionsBtn.addActionListener(this);
         instructionsBtn.setBorder(BorderFactory.createEtchedBorder());
 
         buttonPanel.add(newGameBtn);
-        buttonPanel.add(loadGameBtn);
-        buttonPanel.add(watchGameBtn);
         buttonPanel.add(instructionsBtn);
 
         this.setTitle("Checkers");
@@ -67,6 +53,10 @@ public class StartScreen extends JFrame implements ActionListener {
     public void actionPerformed(ActionEvent e) {
         if (e.getSource().equals(instructionsBtn)) {
             InstructionsScreen instructions = new InstructionsScreen();
+            this.dispose();
+        } else if (e.getSource().equals(newGameBtn)) {
+            GameFrame frame = new GameFrame();
+            frame.run();
             this.dispose();
         }
     }

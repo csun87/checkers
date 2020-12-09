@@ -1,3 +1,7 @@
+import java.io.*;
+import java.util.ArrayDeque;
+import java.util.Arrays;
+import java.util.Deque;
 import java.util.LinkedList;
 
 /* The board will be organized in a fashion such that the top left and bottom right corners are
@@ -21,8 +25,12 @@ import java.util.LinkedList;
 public class Board {
 
     private int[][] arr;
+    private Deque<Move> moves;
     private boolean playerTurn; // true = player 1; false = player 2
+    private int numWhitePieces;
+    private int numBlackPieces;
     private int numTurns;
+    private boolean gameOver;
 
 
     public Board() {
@@ -33,6 +41,10 @@ public class Board {
         this.arr = new int[8][8];
         this.playerTurn = true;
         this.numTurns = 0;
+        this.numWhitePieces = 12;
+        this.numBlackPieces = 12;
+        this.moves = new ArrayDeque<>();
+        this.gameOver = false;
 
         for (int i = 1; i < 8; i += 2) {
             this.arr[0][i] = 1;
@@ -46,48 +58,325 @@ public class Board {
         }
     }
 
-    public boolean playTurn(LinkedList<Move> list) {
-        boolean isValidMove = true;
-        while (!list.isEmpty()) {
-            Move curr = list.pop();
-            int piece = this.arr[curr.getStartRow()][curr.getStartCol()];
+    public int getPiece(int row, int col) {
+        if (row > 7 || col > 7 || row < 0 || col < 0) {
+            throw new ArrayIndexOutOfBoundsException();
+        }
 
-            if ((piece > 2 && this.playerTurn) || (piece < 3 && !this.playerTurn)) {
-                return false;
+        return this.arr[row][col];
+    }
+
+    public LinkedList<Coordinate> validMoves(Coordinate curr) {
+        LinkedList<Coordinate> out = new LinkedList<>();
+        if (!gameOver) {
+            int piece = this.arr[curr.getRow()][curr.getCol()];
+            if (piece == 0) {
+                throw new IllegalCallerException("Player clicked on empty square");
+            } else if (this.playerTurn && piece >= 3) {
+                throw new IllegalCallerException("Player 1 tried clicking on player 2 piece");
+            } else if (!this.playerTurn && piece <= 2) {
+                throw new IllegalCallerException("Player 2 tried clicking on player 1 piece");
             }
 
-            if (this.playerTurn) { // if it is player 1's turn
-                if (curr.getEndRow() < curr.getStartRow() && piece != 2) {
-                    return false;
-                } else if (curr.getDistance() != 2) {
-                    return isValidCapture(curr);
+            int upLeft;
+            int upRight;
+            int downLeft;
+            int downRight;
+
+            try {
+                upLeft = this.arr[curr.getRow() - 1][curr.getCol() - 1];
+            } catch (Exception e) {
+                upLeft = -1;
+            }
+
+            try {
+                upRight = this.arr[curr.getRow() - 1][curr.getCol() + 1];
+            } catch (Exception e) {
+                upRight = -1;
+            }
+
+            try {
+                downLeft = this.arr[curr.getRow() + 1][curr.getCol() - 1];
+            } catch (Exception e) {
+                downLeft = -1;
+            }
+
+            try {
+                downRight = this.arr[curr.getRow() + 1][curr.getCol() + 1];
+            } catch (Exception e) {
+                downRight = -1;
+            }
+
+
+            if (piece == 1 || piece == 2) {
+                if (downLeft == 0) {
+                    out.add(new Coordinate(curr.getRow() + 1, curr.getCol() - 1));
+                } else if (downLeft >= 3) {
+                    try {
+                        if (this.arr[curr.getRow() + 2][curr.getCol() - 2] == 0) {
+                            out.add(new Coordinate(curr.getRow() + 2, curr.getCol() - 2));
+                        }
+                    } catch (Exception ignored) {
+                    }
                 }
 
-            } else { // if it is player 2's turn
+                if (downRight == 0) {
+                    out.add(new Coordinate(curr.getRow() + 1, curr.getCol() + 1));
+                } else if (downRight >= 3) {
+                    try {
+                        if (this.arr[curr.getRow() + 2][curr.getCol() + 2] == 0) {
+                            out.add(new Coordinate(curr.getRow() + 2, curr.getCol() + 2));
+                        }
+                    } catch (Exception ignored) {
+                    }
+                }
 
+                if (piece == 2) {
+                    if (upRight == 0) {
+                        out.add(new Coordinate(curr.getRow() - 1, curr.getCol() + 1));
+                    } else if (upRight >= 3) {
+                        try {
+                            if (this.arr[curr.getRow() - 2][curr.getCol() + 2] == 0) {
+                                out.add(new Coordinate(curr.getRow() - 2, curr.getCol() + 2));
+                            }
+                        } catch (Exception ignored) {
+                        }
+                    }
+
+                    if (upLeft == 0) {
+                        out.add(new Coordinate(curr.getRow() - 1, curr.getCol() - 1));
+                    } else if (upLeft >= 3) {
+                        try {
+                            if (this.arr[curr.getRow() - 2][curr.getCol() - 2] == 0) {
+                                out.add(new Coordinate(curr.getRow() - 2, curr.getCol() - 2));
+                            }
+                        } catch (Exception ignored) {
+                        }
+                    }
+                }
+            }
+
+            if (piece == 3 || piece == 4) {
+
+                if (upRight == 0) {
+                    out.add(new Coordinate(curr.getRow() - 1, curr.getCol() + 1));
+                } else if (upRight == 2 || upRight == 1) {
+                    try {
+                        if (this.arr[curr.getRow() - 2][curr.getCol() + 2] == 0) {
+                            out.add(new Coordinate(curr.getRow() - 2, curr.getCol() + 2));
+                        }
+                    } catch (Exception ignored) {
+                    }
+                }
+
+                if (upLeft == 0) {
+                    out.add(new Coordinate(curr.getRow() - 1, curr.getCol() - 1));
+                } else if (upLeft <= 2) {
+                    try {
+                        if (this.arr[curr.getRow() - 2][curr.getCol() - 2] == 0) {
+                            out.add(new Coordinate(curr.getRow() - 2, curr.getCol() - 2));
+                        }
+                    } catch (Exception ignored) {
+                    }
+                }
+
+                if (piece == 4) {
+                    if (downLeft == 0) {
+                        out.add(new Coordinate(curr.getRow() + 1, curr.getCol() - 1));
+                    } else if (downLeft == 1 || downLeft == 2) {
+                        try {
+                            if (this.arr[curr.getRow() + 2][curr.getCol() - 2] == 0) {
+                                out.add(new Coordinate(curr.getRow() + 2, curr.getCol() - 2));
+                            }
+                        } catch (Exception ignored) {
+                        }
+                    }
+
+                    if (downRight == 0) {
+                        out.add(new Coordinate(curr.getRow() + 1, curr.getCol() + 1));
+                    } else if (downRight == 1 || downRight == 2) {
+                        try {
+                            if (this.arr[curr.getRow() + 2][curr.getCol() + 2] == 0) {
+                                out.add(new Coordinate(curr.getRow() + 2, curr.getCol() + 2));
+                            }
+                        } catch (Exception ignored) {
+                        }
+                    }
+                }
+            }
+        }
+        return out;
+    }
+
+    public boolean playMove(Coordinate start, Coordinate end) {
+
+        int captured = -1;
+
+        if (!validMoves(start).contains(end)) {
+            System.out.println("Move not valid");
+            return false;
+        }
+
+        int distance = Math.abs(start.getRow() - end.getRow()) +
+            Math.abs(start.getCol() - end.getCol());
+        int piece = this.arr[start.getRow()][start.getCol()];
+
+        if (distance == 2) {
+            this.arr[start.getRow()][start.getCol()] = 0;
+            this.arr[end.getRow()][end.getCol()] = piece;
+        } else {
+            this.arr[start.getRow()][start.getCol()] = 0;
+            this.arr[end.getRow()][end.getCol()] = piece;
+            captured = this.arr[(start.getRow() + end.getRow()) / 2][(start.getCol() + end.getCol()) / 2];
+            this.arr[(start.getRow() + end.getRow()) / 2]
+                [(start.getCol() + end.getCol()) / 2] = 0;
+            this.numBlackPieces = 0;
+            this.numWhitePieces = 0;
+            for (int i = 0; i < 8; i++) {
+                for (int j = 0; j < 8; j++) {
+                    if (this.arr[i][j] == 1 || this.arr[i][j] == 2) {
+                        this.numWhitePieces++;
+                    } else if (this.arr[i][j] == 3 || this.arr[i][j] == 4) {
+                        this.numBlackPieces++;
+                    }
+                }
+            }
+        }
+
+        if (piece == 1 && end.getRow() == 7) {
+            this.arr[end.getRow()][end.getCol()] = 2;
+        } else if (piece == 3 && end.getRow() == 0) {
+            this.arr[end.getRow()][end.getCol()] = 4;
+        }
+
+        this.playerTurn = !this.playerTurn;
+        this.numTurns++;
+        this.moves.push(new Move(start, end, captured));
+
+        if (this.isGameOver()) {
+            System.out.println("Game Over");
+            this.gameOver = true;
+        }
+
+        return true;
+    }
+
+    public void undo() {
+        if (this.moves.isEmpty()) {
+            return;
+        }
+
+        Move move = this.moves.pop();
+        Coordinate start = move.getStart();
+        Coordinate end = move.getEnd();
+        this.arr[start.getRow()][start.getCol()] = this.arr[end.getRow()][end.getCol()];
+        this.arr[end.getRow()][end.getCol()] = 0;
+        if (move.getCaptured() != -1) {
+            this.arr[(start.getRow() + end.getRow())/2][(start.getCol() + end.getCol())/2] = move.getCaptured();
+        }
+        this.playerTurn = !this.playerTurn;
+        this.numTurns--;
+        System.out.println(move.toString());
+    }
+
+    public boolean isGameOver() {
+        if (this.numWhitePieces == 0 || this.numBlackPieces == 0) {
+            gameOver = true;
+            return true;
+        }
+        Boolean out = true;
+        for (int i = 0; i < 8; i++) {
+            for (int j = 0; j < 8; j++) {
+                try {
+                    if (!validMoves(new Coordinate(i, j)).isEmpty()) {
+                        gameOver = false;
+                        out = false;
+                    }
+                } catch (Exception ignored) { }
+            }
+        }
+        gameOver = out;
+        return out;
+    }
+
+    public int[][] getBoard() {
+        int[][] copy = new int[8][8];
+        for (int i = 0; i < 8; i++) {
+            copy[i] = this.arr[i];
+        }
+        return copy;
+    }
+
+    public void saveGame(File file) { // line 1 = player turn, line 2-9 = array
+        BufferedWriter bw = null;
+        FileWriter fw;
+        try {
+            if (!file.exists()) {
+                file.createNewFile();
+            }
+
+            fw = new FileWriter(file, false);
+            bw = new BufferedWriter(fw);
+            if (fw == null || bw == null) {
+                throw new IllegalArgumentException("A writer is null");
+            }
+
+            if (this.playerTurn) {
+                bw.write("1");
+            } else {
+                bw.write("0");
+            }
+
+            bw.newLine();
+            for (int i = 0; i < 8; i++) {
+                bw.write(Arrays.toString(this.arr[i]));
+                bw.newLine();
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        } finally {
+            if (bw != null) {
+                try {
+                    bw.close();
+                } catch (Exception e) {
+                    System.out.println(e.getMessage());
+                }
             }
         }
     }
 
-    private boolean isValidCapture(Move move) {
-        int piece = this.arr[move.getStartRow()][move.getStartCol()];
-        int captRow = Math.max(move.getStartRow(), move.getEndRow()) -
-            Math.min(move.getStartRow(), move.getEndRow());
-        int captCol = Math.max(move.getStartCol(), move.getEndCol()) -
-            Math.min(move.getStartCol(), move.getEndCol());
-        int captPiece = this.arr[captRow][captCol];
-        if (this.playerTurn) { // if it is player 1's turn
-            if (captPiece <= 2) {
-                return false;
-            } else {
-                return true;
-            }
-        } else { // if it is player 2's turn
-            if (captPiece >= 3) {
-                return false;
-            } else {
-                return true;
-            }
+    public void loadGame(File file) {
+        init();
+        BufferedReader reader;
+        try {
+            reader = new BufferedReader(new FileReader(file));
+        } catch (IOException e) {
+            throw new IllegalArgumentException("File does not exist.");
         }
+
+        try {
+            if (Integer.valueOf(reader.readLine()) == 0) {
+                this.playerTurn = false;
+            }
+
+            for (int i = 0; i < 8; i++) {
+                StringBuilder builder = new StringBuilder();
+                builder.append(reader.readLine());
+                this.arr[i][0] = builder.charAt(1) - 48;
+                this.arr[i][1] = builder.charAt(4) - 48;
+                this.arr[i][2] = builder.charAt(7) - 48;
+                this.arr[i][3] = builder.charAt(10) - 48;
+                this.arr[i][4] = builder.charAt(13) - 48;
+                this.arr[i][5] = builder.charAt(16) - 48;
+                this.arr[i][6] = builder.charAt(19) - 48;
+                this.arr[i][7] = builder.charAt(22) - 48;
+            }
+        } catch (Exception e) {
+            throw new IllegalArgumentException("Illegal file passed");
+        }
+    }
+
+    public boolean getPlayerTurn() {
+        return this.playerTurn;
     }
 }
