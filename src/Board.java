@@ -11,6 +11,7 @@ import java.util.LinkedList;
    0 = empty square
    1 = regular light piece; 2 = crowned light piece
    3 = regular dark piece; 4 = crowned dark piece
+   This class handles the actual game state of the board.
 
    0 1 2 3 4 5 6 7 <- player 1 side
    1
@@ -46,7 +47,7 @@ public class Board {
         this.moves = new ArrayDeque<>();
         this.gameOver = false;
 
-        for (int i = 1; i < 8; i += 2) {
+        for (int i = 1; i < 8; i += 2) { // initializing the state of the board
             this.arr[0][i] = 1;
             this.arr[2][i] = 1;
             this.arr[6][i] = 3;
@@ -58,6 +59,7 @@ public class Board {
         }
     }
 
+    // This function just gives you the value of a certain index in the 2-D array.
     public int getPiece(int row, int col) {
         if (row > 7 || col > 7 || row < 0 || col < 0) {
             throw new ArrayIndexOutOfBoundsException();
@@ -66,6 +68,7 @@ public class Board {
         return this.arr[row][col];
     }
 
+    // This function returns a LinkedList of all valid moves given a certain piece.
     public LinkedList<Coordinate> validMoves(Coordinate curr) {
         LinkedList<Coordinate> out = new LinkedList<>();
         if (!gameOver) {
@@ -208,6 +211,8 @@ public class Board {
         return out;
     }
 
+    // When the user clicks and drags a checkers, this function is called. It checks if a move
+    // is valid and updates the game state/array accordingly.
     public boolean playMove(Coordinate start, Coordinate end) {
 
         int captured = -1;
@@ -227,7 +232,8 @@ public class Board {
         } else {
             this.arr[start.getRow()][start.getCol()] = 0;
             this.arr[end.getRow()][end.getCol()] = piece;
-            captured = this.arr[(start.getRow() + end.getRow()) / 2][(start.getCol() + end.getCol()) / 2];
+            captured = this.arr[(start.getRow() + end.getRow()) / 2]
+                [(start.getCol() + end.getCol()) / 2];
             this.arr[(start.getRow() + end.getRow()) / 2]
                 [(start.getCol() + end.getCol()) / 2] = 0;
             this.numBlackPieces = 0;
@@ -261,6 +267,7 @@ public class Board {
         return true;
     }
 
+    // Undoes the last move. If no moves have been played yet, then it does nothing.
     public void undo() {
         if (this.moves.isEmpty()) {
             return;
@@ -279,6 +286,7 @@ public class Board {
         System.out.println(move.toString());
     }
 
+    // Checks if the game is over.
     public boolean isGameOver() {
         if (this.numWhitePieces == 0 || this.numBlackPieces == 0) {
             gameOver = true;
@@ -299,6 +307,7 @@ public class Board {
         return out;
     }
 
+    // Returns the array of the board.
     public int[][] getBoard() {
         int[][] copy = new int[8][8];
         for (int i = 0; i < 8; i++) {
@@ -307,6 +316,7 @@ public class Board {
         return copy;
     }
 
+    // Saves the state of the game to a file.
     public void saveGame(File file) { // line 1 = player turn, line 2-9 = array
         BufferedWriter bw = null;
         FileWriter fw;
@@ -321,7 +331,7 @@ public class Board {
                 throw new IllegalArgumentException("A writer is null");
             }
 
-            if (this.playerTurn) {
+            if (this.playerTurn) { // saves player turn
                 bw.write("1");
             } else {
                 bw.write("0");
@@ -329,7 +339,7 @@ public class Board {
 
             bw.newLine();
             for (int i = 0; i < 8; i++) {
-                bw.write(Arrays.toString(this.arr[i]));
+                bw.write(Arrays.toString(this.arr[i])); // saves array state
                 bw.newLine();
             }
         } catch (IOException e) {
@@ -345,6 +355,7 @@ public class Board {
         }
     }
 
+    // Lets players load saved games from files.
     public void loadGame(File file) {
         init();
         BufferedReader reader;
