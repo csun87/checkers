@@ -216,6 +216,7 @@ public class Board {
     public boolean playMove(Coordinate start, Coordinate end) {
 
         int captured = -1;
+        boolean kinged = false;
 
         if (!validMoves(start).contains(end)) {
             System.out.println("Move not valid");
@@ -251,13 +252,15 @@ public class Board {
 
         if (piece == 1 && end.getRow() == 7) {
             this.arr[end.getRow()][end.getCol()] = 2;
+            kinged = true;
         } else if (piece == 3 && end.getRow() == 0) {
             this.arr[end.getRow()][end.getCol()] = 4;
+            kinged = true;
         }
 
         this.playerTurn = !this.playerTurn;
         this.numTurns++;
-        this.moves.push(new Move(start, end, captured));
+        this.moves.push(new Move(start, end, captured, kinged));
 
         if (this.isGameOver()) {
             System.out.println("Game Over");
@@ -276,14 +279,20 @@ public class Board {
         Move move = this.moves.pop();
         Coordinate start = move.getStart();
         Coordinate end = move.getEnd();
-        this.arr[start.getRow()][start.getCol()] = this.arr[end.getRow()][end.getCol()];
+        if (move.getKinged()) {
+            this.arr[start.getRow()][start.getCol()] = this.arr[end.getRow()][end.getCol()] - 1;
+        } else {
+            this.arr[start.getRow()][start.getCol()] = this.arr[end.getRow()][end.getCol()];
+        }
         this.arr[end.getRow()][end.getCol()] = 0;
         if (move.getCaptured() != -1) {
             this.arr[(start.getRow() + end.getRow())/2][(start.getCol() + end.getCol())/2] = move.getCaptured();
         }
         this.playerTurn = !this.playerTurn;
         this.numTurns--;
-        System.out.println(move.toString());
+        if (this.gameOver) {
+            this.gameOver = false;
+        }
     }
 
     // Checks if the game is over.
@@ -307,7 +316,7 @@ public class Board {
         return out;
     }
 
-    // Returns the array of the board.
+    // Returns the array of the board. For testing purposes
     public int[][] getBoard() {
         int[][] copy = new int[8][8];
         for (int i = 0; i < 8; i++) {

@@ -1,5 +1,3 @@
-import java.util.Objects;
-
 public class Coordinate {
 
     private int row;

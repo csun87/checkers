@@ -16,19 +16,11 @@ public class GameFrame implements Runnable {
         statusPanel.setBounds(0, 0, 1000, 30);
         frame.add(statusPanel);
 
-        JMenuBar mb = new JMenuBar();
-        JMenu actions = new JMenu("Actions");
-        JMenuItem loadGame = new JMenuItem("Load Game");
-        JMenuItem saveGame = new JMenuItem("Save Game");
-        actions.add(loadGame);
-        actions.add(saveGame);
-        mb.add(actions);
-        frame.setJMenuBar(mb);
-
         BoardPanel boardPanel = new BoardPanel(statusLabel);
         boardPanel.setSize(new Dimension(800, 800));
         frame.add(boardPanel, BorderLayout.CENTER);
         boardPanel.setLocation(0, 80);
+        boardPanel.setBorder(BorderFactory.createLineBorder(Color.BLACK, 1));
 
         JPanel buttonsPanel = new JPanel();
         JButton undoBtn = new JButton("Undo Move");
@@ -58,6 +50,15 @@ public class GameFrame implements Runnable {
             }
         });
 
+        JButton newGameBtn = new JButton("New Game");
+
+        newGameBtn.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                boardPanel.newGame();
+            }
+        });
+
         JButton backBtn = new JButton("Start Screen");
 
         backBtn.addActionListener(new ActionListener() {
@@ -74,8 +75,9 @@ public class GameFrame implements Runnable {
         buttonsPanel.add(Box.createRigidArea(new Dimension(150, 20)));
         buttonsPanel.add(loadBtn);
         buttonsPanel.add(Box.createRigidArea(new Dimension(150, 20)));
-        buttonsPanel.add(backBtn);
+        buttonsPanel.add(newGameBtn);
         buttonsPanel.add(Box.createRigidArea(new Dimension(150, 20)));
+        buttonsPanel.add(backBtn);
         frame.add(buttonsPanel);
         buttonsPanel.setBounds(815, 100, 150, 600);
 

@@ -9,7 +9,6 @@ public class StartScreen extends JFrame implements ActionListener {
 
     private final JButton newGameBtn;
     private final JButton instructionsBtn;
-    private boolean visible;
 
     public StartScreen() {
         JLabel checkersTitle = new JLabel("Checkers");
@@ -43,8 +42,7 @@ public class StartScreen extends JFrame implements ActionListener {
         this.add(buttonPanel);
         this.getContentPane().setBackground(new Color(246, 209, 87));
         this.getContentPane().add(checkersTitle);
-        visible = true;
-        this.setVisible(visible);
+        this.setVisible(true);
         this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         this.setResizable(false);
     }
@@ -59,11 +57,6 @@ public class StartScreen extends JFrame implements ActionListener {
             frame.run();
             this.dispose();
         }
-    }
-
-    public void toggleVisibility() {
-        visible = !visible;
-        this.setVisible(visible);
     }
 
 }

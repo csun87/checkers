@@ -6,6 +6,8 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.io.File;
 
+// This class actually creates the visual board panel that will go inside the actual frame of
+// the "game screen."
 public class BoardPanel extends JPanel {
 
     private Board board;
@@ -42,6 +44,7 @@ public class BoardPanel extends JPanel {
     public void paintComponent(Graphics g) {
         super.paintComponent(g);
         this.setSize(new Dimension(800, 800));
+        updateStatusText();
 
         g.drawLine(0, 0, 800, 0);
         g.drawLine(0, 100, 800, 100);
@@ -75,7 +78,7 @@ public class BoardPanel extends JPanel {
                 int piece = board.getPiece(row, col);
                 if (piece == 1) {
                     try {
-                        Image blueChecker = ImageIO.read(new File("blue_checker.png"));
+                        Image blueChecker = ImageIO.read(new File("files/blue_checker.png"));
                         g.drawImage(blueChecker,
                             col * 100 + 10,
                             row * 100 + 10, null);
@@ -83,7 +86,7 @@ public class BoardPanel extends JPanel {
                 } else if (piece == 2) {
                     try {
                         Image blueCrownedChecker = ImageIO.read(
-                            new File("blue_crowned_checker.png"));
+                            new File("files/blue_crowned_checker.png"));
                         g.drawImage(blueCrownedChecker,
                             col * 100 + 10,
                             row * 100 + 10, null);
@@ -91,7 +94,7 @@ public class BoardPanel extends JPanel {
                 } else if (piece == 3) {
                     try {
                         Image redChecker = ImageIO.read(
-                            new File("red_checker.png"));
+                            new File("files/red_checker.png"));
                         g.drawImage(redChecker,
                             col * 100 + 10,
                             row * 100 + 10, null);
@@ -99,7 +102,7 @@ public class BoardPanel extends JPanel {
                 } else if (piece == 4) {
                     try {
                         Image redCrownedChecker = ImageIO.read(
-                            new File("red_crowned_checker.png"));
+                            new File("files/red_crowned_checker.png"));
                         g.drawImage(redCrownedChecker,
                             col * 100 + 10,
                             row * 100 + 10, null);
@@ -152,6 +155,11 @@ public class BoardPanel extends JPanel {
         requestFocusInWindow();
     }
 
+    public void newGame() {
+        board.init();
+        repaint();
+    }
+
     public void undo() {
         board.undo();
         repaint();
@@ -160,8 +168,10 @@ public class BoardPanel extends JPanel {
     }
 
     public void updateStatusText() {
-        if (board.isGameOver()) {
-            statusLabel.setText("Game over!");
+        if (board.isGameOver() && board.getPlayerTurn()) {
+            statusLabel.setText("Game over! Player 2 wins!");
+        } else if (board.isGameOver() && !board.getPlayerTurn()) {
+            statusLabel.setText("Game over! Player 1 wins!");
         } else if (board.getPlayerTurn()) {
             statusLabel.setText("Player 1's turn");
         } else if (!board.getPlayerTurn()) {

@@ -27,20 +27,25 @@ public class InstructionsScreen extends JFrame implements ActionListener {
         words.add(checkers);
 
         JLabel instructs = new JLabel();
-        instructs.setFont(new Font("Courier New", Font.PLAIN, 14));
+        instructs.setFont(new Font("Courier New", Font.PLAIN, 18));
         instructs.setForeground(Color.WHITE);
         instructs.setBounds(10, 50, 580, 700);
         instructs.setText("<html><p>" +
             "This is a game for two players. The goal is to capture all of your opponent's" +
             " checkers from the board by capturing them. Players will take turns moving their" +
             " checkers. Checkers can generally only be moved diagonally forwards one square each. " +
-            "You can capture other checkers by jumping over them. These jumps can be chained" +
+            "You can capture other checkers by jumping over them. These jumps cannot be chained" +
             " together to capture multiple checker pieces at once. Checkers cannot jump over" +
             " checkers of the same color. When a checker reaches the end of the board (the " +
             "row closest to the opposing player), it is crowned and can move either forwards or" +
             " backwards, but still only diagonally. The last player with checkers still on " +
             "the board is victorious. <br>" +
-            "Additionally, this digital version of checkers allows you to save and replay games. " +
+            "Additionally, this digital version of checkers allows you to save and load games. " +
+            "You can do this by clicking on the save game button to save a game. You can load it" +
+            " in later using the load game button. You can also undo moves by clicking the undo" +
+            " button. <br> You can move pieces by clicking on your piece and dragging it to another" +
+            " square. If the move is valid, the piece will move. If the move is invalid, then " +
+            "nothing will happen. Player 1 is blue and player 2 is red." +
             "</p></html>");
         words.add(instructs);
 
