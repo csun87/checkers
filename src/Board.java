@@ -1,8 +1,5 @@
 import java.io.*;
-import java.util.ArrayDeque;
-import java.util.Arrays;
-import java.util.Deque;
-import java.util.LinkedList;
+import java.util.*;
 
 /* The board will be organized in a fashion such that the top left and bottom right corners are
    light-colored and the top right and bottom left corners are dark-colored. Each player starts
@@ -36,6 +33,23 @@ public class Board {
 
     public Board() {
         this.init();
+    }
+
+    public Board(int[][] arr, boolean turn) {
+        this.arr = arr;
+        this.moves = new ArrayDeque<>();
+        this.playerTurn = turn;
+        this.numTurns = 0;
+        for (int i = 0; i < 8; i++) {
+            for (int j = 0; j < 8; j++) {
+                if (this.arr[i][j] == 1 || this.arr[i][j] == 2) {
+                    this.numWhitePieces++;
+                } else if (this.arr[i][j] == 3 || this.arr[i][j] == 4) {
+                    this.numBlackPieces++;
+                }
+            }
+        }
+        this.gameOver = isGameOver();
     }
 
     public void init() {
@@ -266,7 +280,6 @@ public class Board {
             System.out.println("Game Over");
             this.gameOver = true;
         }
-
         return true;
     }
 
@@ -336,9 +349,6 @@ public class Board {
 
             fw = new FileWriter(file, false);
             bw = new BufferedWriter(fw);
-            if (fw == null || bw == null) {
-                throw new IllegalArgumentException("A writer is null");
-            }
 
             if (this.playerTurn) { // saves player turn
                 bw.write("1");

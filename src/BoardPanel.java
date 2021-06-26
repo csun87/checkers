@@ -13,12 +13,14 @@ public class BoardPanel extends JPanel {
     private Board board;
     private Point clicked;
     private Point released;
+    private boolean playBot;
     private JLabel statusLabel;
     public static final int BOARD_WIDTH = 800;
     public static final int BOARD_HEIGHT = 800;
 
     public BoardPanel(JLabel status) {
         board = new Board();
+        this.playBot = false;
         setFocusable(true);
         this.statusLabel = status;
         this.setSize(new Dimension(800, 800));
@@ -32,13 +34,19 @@ public class BoardPanel extends JPanel {
             @Override
             public void mouseReleased(MouseEvent e) {
                 released = e.getPoint();
-                if (board.playMove(convertPoint(clicked), convertPoint(released))) {
-                    repaint();
-                    updateStatusText();
-                }
+                makeMove(convertPoint(clicked), convertPoint(released));
             }
         });
     }
+
+    private void makeMove(Coordinate one, Coordinate two) {
+        if (board.playMove(one, two)) {
+            repaint();
+            updateStatusText();
+        }
+        this.botMove();
+    }
+
 
     @Override
     public void paintComponent(Graphics g) {
@@ -176,6 +184,31 @@ public class BoardPanel extends JPanel {
             statusLabel.setText("Player 1's turn");
         } else if (!board.getPlayerTurn()) {
             statusLabel.setText("Player 2's turn");
+        }
+    }
+
+    public void toggleBot() {
+        this.playBot = !this.playBot;
+        this.botMove();
+    }
+
+    private void botMove() {
+        if (this.playBot && !board.getPlayerTurn()) {
+            Bot bot = new Bot();
+            int[][] temp = new int[8][8];
+            for (int i = 0; i < 8; i++) {
+                for (int j = 0; j < 8; j++) {
+                    temp[i][j] = board.getBoard()[i][j];
+                }
+            }
+            Pair out = bot.minimax(temp, 4, Integer.MIN_VALUE, Integer.MAX_VALUE, board.getPlayerTurn());
+            System.out.println("Calculated Score: " + out.getScore());
+            if (out.getMove() == null ) {
+                return;
+            }
+            board.playMove(out.getMove().get(0), out.getMove().get(1));
+            repaint();
+            updateStatusText();
         }
     }
 }

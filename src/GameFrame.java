@@ -69,6 +69,15 @@ public class GameFrame implements Runnable {
             }
         });
 
+        JButton botBtn = new JButton("Toggle AI");
+
+        botBtn.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                boardPanel.toggleBot();
+            }
+        });
+
         buttonsPanel.add(undoBtn);
         buttonsPanel.add(Box.createRigidArea(new Dimension(150, 20)));
         buttonsPanel.add(saveBtn);
@@ -78,6 +87,8 @@ public class GameFrame implements Runnable {
         buttonsPanel.add(newGameBtn);
         buttonsPanel.add(Box.createRigidArea(new Dimension(150, 20)));
         buttonsPanel.add(backBtn);
+        buttonsPanel.add(Box.createRigidArea(new Dimension(150, 20)));
+        buttonsPanel.add(botBtn);
         frame.add(buttonsPanel);
         buttonsPanel.setBounds(815, 100, 150, 600);
 
